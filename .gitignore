@@ -1,2 +1,6 @@
 *.pptx
-datasets
+
+ICG Term Project Spec.pdf
+
+datasets/
+__pycache__/

@@ -26,5 +26,6 @@ if __name__ == '__main__':
     
     source = cv2.cvtColor(cv2.imread(args.source, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
     target = cv2.cvtColor(cv2.imread(args.target, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
+    LandmarkTest(source)
     # morpher = Morpher(source, target)
 

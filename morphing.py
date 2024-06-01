@@ -22,7 +22,7 @@ class LandmarkDetector:
         detection_result = self.detector.detect(mp_image)
         return detection_result
     @staticmethod
-    def draw_landmarks_on_image(rgb_image, detection_result):
+    def draw_landmarks_mediapipe(rgb_image, detection_result):
         face_landmarks_list = detection_result.face_landmarks
         annotated_image = np.copy(rgb_image)
 
@@ -60,8 +60,21 @@ class LandmarkDetector:
 
         return annotated_image
     @staticmethod
+    def draw_landmarks(image, detection_result):
+        face_landmark = detection_result.face_landmarks[0] # landmark of face 0
+        annotated_image = np.copy(image)
+        height = image.shape[0]
+        width = image.shape[1]
+        print(dir(face_landmark[0]))
+        # Loop through the detected faces to visualize.
+        for idx in range(len(face_landmark)):
+            landmark = face_landmark[idx]
+            annotated_image = cv2.circle(annotated_image, (int(landmark.x * width), int(landmark.y * height)), 1, (0, 0, 255), -1)
+        return annotated_image
+    @staticmethod
     def show_annotation(image, detection_result):
-        annotated_image = LandmarkDetector.draw_landmarks_on_image(image, detection_result)
+        # annotated_image = LandmarkDetector.draw_landmarks_mediapipe(image, detection_result)
+        annotated_image = LandmarkDetector.draw_landmarks(image,detection_result)
         cv2.imshow("Annotated Image", cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
         cv2.waitKey(0)
 
