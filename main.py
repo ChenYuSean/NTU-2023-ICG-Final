@@ -26,6 +26,12 @@ if __name__ == '__main__':
     
     source = cv2.cvtColor(cv2.imread(args.source, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
     target = cv2.cvtColor(cv2.imread(args.target, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
-    LandmarkTest(source)
-    # morpher = Morpher(source, target)
+    # LandmarkTest(source)
+    morpher = Morpher(source, target)
+    # morpher.show_triangles()
+    # image = morpher.morph(0.1)
+    # cv2_show(image)
+    for alpha in np.arange(0.0, 1.0, 0.1):
+        image = morpher.morph(alpha)
+        cv2_show(image)
 
