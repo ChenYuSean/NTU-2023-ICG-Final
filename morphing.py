@@ -155,10 +155,10 @@ class Morpher:
     def morph(self, alpha):
         alpha = np.clip(alpha, 0, 1)
         morphed_image = np.zeros(self.source.shape, dtype=np.float64)
-        for source_triangle, target_triangle in zip(self.source_triangles,self.target_triangles):
+        for source_triangle_idx, target_triangle_idx in zip(self.source_triangles,self.target_triangles):
             # Get the points of the triangle
-            source_triangle = self.source_points[source_triangle]
-            target_triangle = self.target_points[target_triangle]
+            source_triangle = self.source_points[source_triangle_idx]
+            target_triangle = self.target_points[source_triangle_idx] # Make sure the target triangle is the same as the source triangle
             morphed_triangle = (1-alpha)*source_triangle + alpha*target_triangle
             morphed_triangle = morphed_triangle.astype(np.float32)
             # Get the bounding box of the triangle
@@ -170,10 +170,10 @@ class Morpher:
             M = cv2.getAffineTransform(source_triangle[:3], morphed_triangle[:3])
             N = cv2.getAffineTransform(target_triangle[:3], morphed_triangle[:3])
             # Warp the triangle
-            warped_from_source = cv2.warpAffine(self.source, M, morphed_image.shape[:2])
-            warped_from_target = cv2.warpAffine(self.target, N, morphed_image.shape[:2])
+            warped_from_source = cv2.warpAffine(self.source, M, morphed_image.shape[:2], flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
+            warped_from_target = cv2.warpAffine(self.target, N, morphed_image.shape[:2], flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
             mask = np.zeros(morphed_image.shape[:2], dtype=np.uint8)
             cv2.fillConvexPoly(mask, morphed_triangle[:3].astype(np.int32), 255)    
             mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
-            morphed_image += warped_from_source * (mask//255) * (1-alpha) + warped_from_target * (mask//255) * alpha
+            morphed_image[y:y+h,x:x+w] = (warped_from_source * (mask//255) * (1-alpha) + warped_from_target * (mask//255) * alpha)[y:y+h,x:x+w]
         return morphed_image.astype(np.uint8)

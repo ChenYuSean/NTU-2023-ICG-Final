@@ -10,9 +10,7 @@ def parse_args():
     parser.add_argument('--output', type=str, default= "./Output", help='Path to the output directory')
     return parser.parse_args()
 
-def cv2_show(image, title = "image"):
-    cv2.imshow(title, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-    cv2.waitKey(0)
+
 
 def LandmarkTest(image):
     detector = LandmarkDetector()
@@ -26,12 +24,16 @@ if __name__ == '__main__':
     
     source = cv2.cvtColor(cv2.imread(args.source, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
     target = cv2.cvtColor(cv2.imread(args.target, cv2.IMREAD_COLOR),cv2.COLOR_BGR2RGB)
-    # LandmarkTest(source)
     morpher = Morpher(source, target)
+    
+    # LandmarkTest(source)
     # morpher.show_triangles()
-    # image = morpher.morph(0.1)
-    # cv2_show(image)
-    for alpha in np.arange(0.0, 1.0, 0.1):
-        image = morpher.morph(alpha)
-        cv2_show(image)
+    
+    image = morpher.morph(0.5)
+    cv2.imshow("image", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+    cv2.waitKey(0)
+    
+    # for alpha in np.arange(0.0, 1.1, 0.1):
+    #     image = morpher.morph(alpha)
+    #     cv2.imwrite(os.path.join(args.output, f"morphed_{alpha:.1f}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
 
