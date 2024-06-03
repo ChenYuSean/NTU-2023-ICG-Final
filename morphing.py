@@ -141,20 +141,29 @@ class Morpher:
             cv2.line(image, pt3, pt1, (255, 255, 255), 1)
         return image
     
-    def show_triangles(self):
+    def show_triangles(self, alpha = None):
         source_image = np.copy(self.source)
         target_image = np.copy(self.target)
         source_image = self.detector.draw_landmarks(source_image, self.source_landmarks)
         target_image = self.detector.draw_landmarks(target_image, self.target_landmarks)
         source_image = self.draw_triangles(source_image, self.source_points, self.source_triangles)
-        target_image = self.draw_triangles(target_image, self.target_points, self.target_triangles)
+        target_image = self.draw_triangles(target_image, self.target_points, self.source_triangles)
+        # target_image = self.draw_triangles(target_image, self.target_points, self.target_triangles)
         cv2.imshow("Source Triangles", cv2.cvtColor(source_image, cv2.COLOR_RGB2BGR))
         cv2.imshow("Target Triangles", cv2.cvtColor(target_image, cv2.COLOR_RGB2BGR))
+        if alpha is not None:
+            morphed_image = self.morph(alpha)
+            for source_triangle_idx, target_triangle_idx in zip(self.source_triangles,self.target_triangles):
+                source_triangle = self.source_points[source_triangle_idx]
+                target_triangle = self.target_points[source_triangle_idx]
+                morphed_triangle = (1-alpha)*source_triangle + alpha*target_triangle
+                morphed_image = cv2.polylines(morphed_image, [morphed_triangle.astype(np.int32)], True, (255, 255, 255), 1)
+            cv2.imshow("Morphed Image", cv2.cvtColor(morphed_image, cv2.COLOR_RGB2BGR))
         cv2.waitKey(0)
     
     def morph(self, alpha):
         alpha = np.clip(alpha, 0, 1)
-        morphed_image = np.zeros(self.source.shape, dtype=np.float64)
+        morphed_image = np.zeros(self.source.shape, dtype=np.float32)
         for source_triangle_idx, target_triangle_idx in zip(self.source_triangles,self.target_triangles):
             # Get the points of the triangle
             source_triangle = self.source_points[source_triangle_idx]
@@ -175,5 +184,9 @@ class Morpher:
             mask = np.zeros(morphed_image.shape[:2], dtype=np.uint8)
             cv2.fillConvexPoly(mask, morphed_triangle[:3].astype(np.int32), 255)    
             mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
-            morphed_image[y:y+h,x:x+w] = (warped_from_source * (mask//255) * (1-alpha) + warped_from_target * (mask//255) * alpha)[y:y+h,x:x+w]
+            interpolated = (warped_from_source * (mask//255) * (1-alpha) + warped_from_target * (mask//255) * alpha)
+            new_morphed_image = np.where(mask != 0, interpolated,  morphed_image)
+            morphed_image = np.where((mask != 0) & (morphed_image != 0), (interpolated + morphed_image)/2,  new_morphed_image)
+            # cv2.imshow("Partial Morphed Image", cv2.cvtColor(morphed_image.astype(np.uint8), cv2.COLOR_RGB2BGR))
+            # cv2.waitKey(0)
         return morphed_image.astype(np.uint8)

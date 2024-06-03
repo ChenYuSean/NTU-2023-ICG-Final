@@ -27,13 +27,13 @@ if __name__ == '__main__':
     morpher = Morpher(source, target)
     
     # LandmarkTest(source)
-    # morpher.show_triangles()
+    # morpher.show_triangles(0.5)
     
-    image = morpher.morph(0.5)
-    cv2.imshow("image", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-    cv2.waitKey(0)
+    # image = morpher.morph(0.5)
+    # cv2.imshow("image", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
     
-    # for alpha in np.arange(0.0, 1.1, 0.1):
-    #     image = morpher.morph(alpha)
-    #     cv2.imwrite(os.path.join(args.output, f"morphed_{alpha:.1f}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+    for alpha in np.arange(0.0, 1.1, 0.1):
+        image = morpher.morph(alpha)
+        cv2.imwrite(os.path.join(args.output, f"morphed_{alpha:.1f}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
 
