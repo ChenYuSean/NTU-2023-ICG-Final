@@ -4,29 +4,7 @@ import scipy
 from scipy.spatial import Delaunay
 from PIL import Image, ImageDraw
 import copy
-
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-from mediapipe import solutions
-from mediapipe.framework.formats import landmark_pb2
-
-
-class LandmarkDetector:
-    def __init__(self):
-        base_options = python.BaseOptions(
-            model_asset_path='face_landmarker.task')
-        self.options = vision.FaceLandmarkerOptions(base_options=base_options,
-                                                    output_face_blendshapes=True,
-                                                    output_facial_transformation_matrixes=True,
-                                                    num_faces=1)
-        self.detector = vision.FaceLandmarker.create_from_options(self.options)
-
-    def detect_landmarks(self, image):
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
-        detection_result = self.detector.detect(mp_image)
-        return detection_result
-
+from LandmarkDetector import *
 
 class Triangle:
     def __init__(self, vertices):
@@ -51,7 +29,7 @@ class Triangle:
         return coordArray
 
 
-class Morpher:
+class Morpher1:
     def __init__(self, source, target):
         self.source = source.astype(np.uint8)
         self.target = target.astype(np.uint8)
