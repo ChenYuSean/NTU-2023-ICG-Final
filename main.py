@@ -7,12 +7,21 @@ from morphing1 import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Morphing')
-    parser.add_argument('--source', type=str, required=True,
+    parser.add_argument('source', type=str,
                         help='Path to the source image')
-    parser.add_argument('--target', type=str, required=True,
+    parser.add_argument('target', type=str,
                         help='Path to the target image')
-    parser.add_argument('--output', type=str, default="./Output",
+    parser.add_argument('--output', type=str, default="./output",
                         help='Path to the output directory')
+    parser.add_argument('--alpha', type=float, default=0.5,
+                        help='Alpha value for morphing')
+    parser.add_argument('--frame', type=int, default=None,
+                        help='Number of frames for morphing, overwrites alpha value if set')
+    parser.add_argument('--morpher', type=str, choices=['0', '1'], default='0',
+                        help='Morphing method')
+    parser.add_argument('--debug', action='store_true',
+                        help='Run debug mode')
+    
     return parser.parse_args()
 
 
@@ -34,18 +43,28 @@ if __name__ == '__main__':
     morpher = Morpher(source, target)
     morpher1 = Morpher1(source, target)
 
-    # LandmarkTest(source)
-    # morpher.show_triangles(0.5)
+    if args.debug:
+        LandmarkTest(source)
+        morpher.show_triangles(0.5)
     
-    # image = morpher.morph(0.5)
-    # cv2.imshow("image", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-    # cv2.waitKey(0)
-    for alpha in np.arange(0.0, 1.1, 0.1):
-        image = morpher.morph(alpha)
-        cv2.imwrite(os.path.join(args.output, f"morphed_{alpha:.1f}.png"), cv2.cvtColor(
-            image, cv2.COLOR_RGB2BGR))
-    
-    for alpha in np.arange(0.0, 1.1, 0.1):
-        image = morpher1.getImageAtAlpha(alpha)
-        cv2.imwrite(os.path.join(args.output, f"morphed1_{alpha:.1f}.png"), cv2.cvtColor(
-            image, cv2.COLOR_RGB2BGR))
+    if args.morpher == '0':
+        if args.alpha and not args.frame:
+            image = morpher.morph(args.alpha)
+            cv2.imwrite(os.path.join(args.output, f"morphed_{args.alpha:.1f}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+        
+        if args.frame:
+            for i in range(args.frame + 1):
+                alpha = i / args.frame
+                image = morpher.morph(alpha)
+                cv2.imwrite(os.path.join(args.output, f"morphed_f{i}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+            
+    if args.morpher == '1':
+        if args.alpha and not args.frame:
+            image = morpher1.getImageAtAlpha(args.alpha)
+            cv2.imwrite(os.path.join(args.output, f"morphed1_{args.alpha:.1f}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+
+        if args.frame:
+            for i in range(args.frame + 1):
+                alpha = i / args.frame 
+                image = morpher1.getImageAtAlpha(alpha)
+                cv2.imwrite(os.path.join(args.output, f"morphed1_f{i}.png"), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))

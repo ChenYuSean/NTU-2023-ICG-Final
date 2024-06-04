@@ -41,8 +41,8 @@ class Morpher1:
             self.source, self.source_landmarks)
         self.target_points = self.get_points(
             self.source, self.target_landmarks)
-        print(self.source_points.shape)
-        print(self.target_points.shape)
+        # print(self.source_points.shape)
+        # print(self.target_points.shape)
         self.source_triangle, self.target_triangle = self.loadTriangles()
         self.new_source_image = copy.deepcopy(self.source)
         self.new_target_image = copy.deepcopy(self.target)
